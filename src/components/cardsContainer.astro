@@ -54,7 +54,10 @@ const pokemonData = await fetchPokemonType();
       class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4"
     >
       <!-- "All" button -->
-      <button class="hover:scale-125 transition-all duration-100">
+      <button
+        class="hover:scale-125 transition-all duration-100"
+        onclick="window.location.href='/'"
+      >
         <img class="h-8 w-auto" src="/img/types_icons/todos.png" />
       </button>
 
