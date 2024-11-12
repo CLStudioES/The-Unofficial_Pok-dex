@@ -1,0 +1,136 @@
+---
+import Layout from "../../layouts/Layout.astro";
+const { id } = Astro.params;
+
+// Pokemon type translations and colors
+const typeTranslations = {
+  normal: { es: "Normal", color: "bg-[#A8A878]" },
+  fighting: { es: "Lucha", color: "bg-[#C03028]" },
+  flying: { es: "Volador", color: "bg-[#A890F0]" },
+  poison: { es: "Veneno", color: "bg-[#A040A0]" },
+  ground: { es: "Tierra", color: "bg-[#E0C068]" },
+  rock: { es: "Roca", color: "bg-[#B8A038]" },
+  bug: { es: "Bicho", color: "bg-[#A8B820]" },
+  ghost: { es: "Fantasma", color: "bg-[#705898]" },
+  steel: { es: "Acero", color: "bg-[#B8B8D0]" },
+  fire: { es: "Fuego", color: "bg-[#F08030]" },
+  water: { es: "Agua", color: "bg-[#6890F0]" },
+  grass: { es: "Planta", color: "bg-[#78C850]" },
+  electric: { es: "Eléctrico", color: "bg-[#F8D030]" },
+  psychic: { es: "Psíquico", color: "bg-[#F85888]" },
+  ice: { es: "Hielo", color: "bg-[#98D8D8]" },
+  dragon: { es: "Dragón", color: "bg-[#7038F8]" },
+  dark: { es: "Siniestro", color: "bg-[#705848]" },
+  fairy: { es: "Hada", color: "bg-[#EE99AC]" },
+};
+
+async function fetchPokemonData(id: string) {
+  try {
+    const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching Pokemon data:", error);
+    return null;
+  }
+}
+
+const pokemonData = await fetchPokemonData(id);
+---
+
+<Layout title="Bienvenido a la Pokédex no oficial">
+  <main class="container mx-auto px-4 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[85dvh]">
+      <!-- Left Column - Image -->
+      <div class="flex flex-col justify-center items-center">
+        <img
+          transition:name={`pokemon-image-${id}`}
+          transition:animate="fade"
+          id="mainImage"
+          src={pokemonData.sprites.other["official-artwork"].front_default}
+          alt={pokemonData.name}
+          class="w-96 h-96 object-contain transition-all duration-300 ease-in-out"
+        />
+        <!-- Image Grid -->
+        <div class="grid grid-cols-3 gap-2 w-64">
+          <!-- Official Artwork Button -->
+          <button
+            class="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            onclick={`document.getElementById('mainImage').src = '${pokemonData.sprites.other["official-artwork"].front_default}'`}
+          >
+            <img
+              src={pokemonData.sprites.other["official-artwork"].front_default}
+              alt={`${pokemonData.name} official artwork`}
+              class="w-full h-full object-contain"
+              loading="lazy"
+            />
+          </button>
+          {
+            Object.entries(pokemonData.sprites)
+              .filter(
+                ([key, value]) =>
+                  typeof value === "string" &&
+                  value !== null &&
+                  !key.includes("other")
+              )
+              .map(([key, value]) => {
+                if (typeof value === "string") {
+                  return (
+                    <button
+                      class="p-2 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                      onclick={`document.getElementById('mainImage').src = '${value}'`}
+                    >
+                      <img
+                        src={value}
+                        alt={`${pokemonData.name} ${key}`}
+                        class="w-full h-full object-contain"
+                        loading="lazy"
+                      />
+                    </button>
+                  );
+                }
+                return null;
+              })
+          }
+        </div>
+      </div>
+      <!-- Right Column - Pokemon Info -->
+      <div class="flex flex-col items-center space-y-4 py-32">
+        <h1 class="text-4xl font-light uppercase tracking-wider">
+          {pokemonData.name}
+        </h1>
+        <div class="space-y-2">
+          <div>
+            <div class="flex gap-2">
+              {
+                pokemonData.types.map((type) => (
+                  <span
+                    class={`px-3 py-1 rounded-full text-sm text-white ${typeTranslations[type.type.name]?.color || "bg-gray-500"}`}
+                  >
+                    {typeTranslations[type.type.name]?.es || type.type.name}
+                  </span>
+                ))
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</Layout>
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const mainImage = document.getElementById("mainImage") as HTMLImageElement;
+    const imageButtons = document.querySelectorAll("button[onclick]");
+
+    imageButtons.forEach((button) => {
+      button.addEventListener("click", (e) => {
+        e.preventDefault();
+        const newSrc = button.querySelector("img")?.src;
+        if (mainImage && newSrc) {
+          mainImage.src = newSrc;
+        }
+      });
+    });
+  });
+</script>

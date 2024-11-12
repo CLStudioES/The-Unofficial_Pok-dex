@@ -1,50 +1,128 @@
 ---
+import { ViewTransitions } from "astro:transitions";
+import Header from "../components/Header.astro";
+import "@fontsource-variable/onest";
+
 interface Props {
-	title: string;
+  title: string;
 }
 
 const { title } = Astro.props;
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description" />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-	</head>
-	<body>
-		<slot />
-	</body>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Astro description" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <ViewTransitions fallback="swap" />
+  </head>
+  <body class="overflow-x-hidden">
+    <Header />
+    <slot />
+  </body>
 </html>
 <style is:global>
-	:root {
-		--accent: 136, 58, 234;
-		--accent-light: 224, 204, 250;
-		--accent-dark: 49, 10, 101;
-		--accent-gradient: linear-gradient(
-			45deg,
-			rgb(var(--accent)),
-			rgb(var(--accent-light)) 30%,
-			white 60%
-		);
-	}
-	html {
-		font-family: system-ui, sans-serif;
-		background: #13151a;
-	}
-	code {
-		font-family:
-			Menlo,
-			Monaco,
-			Lucida Console,
-			Liberation Mono,
-			DejaVu Sans Mono,
-			Bitstream Vera Sans Mono,
-			Courier New,
-			monospace;
-	}
+  :root {
+  }
+  html {
+    font-family: "Onest Variable", sans-serif;
+    background-size: 224px;
+  }
+  .normal {
+    background: linear-gradient(-180deg, white, #a2a274);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .fire {
+    background: linear-gradient(-180deg, white, #f08030);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .water {
+    background: linear-gradient(-180deg, white, #6890f0);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .electric {
+    background: linear-gradient(-180deg, white, #f8d030);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .grass {
+    background: linear-gradient(-180deg, white, #78c850);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .ice {
+    background: linear-gradient(-180deg, white, #98d8d8);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .fighting {
+    background: linear-gradient(-180deg, white, #c03028);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .poison {
+    background: linear-gradient(-180deg, white, #a040a0);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .ground {
+    background: linear-gradient(-180deg, white, #e0c068);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .flying {
+    background: linear-gradient(-180deg, white, #9b85de);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .psychic {
+    background: linear-gradient(-180deg, white, #f85888);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .bug {
+    background: linear-gradient(-180deg, white, #a8b820);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .rock {
+    background: linear-gradient(-180deg, white, #b8a038);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .ghost {
+    background: linear-gradient(-180deg, white, #705898);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .dragon {
+    background: linear-gradient(-180deg, white, #7038f8);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .dark {
+    background: linear-gradient(-180deg, white, #705848);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .steel {
+    background: linear-gradient(-180deg, white, #b8b8d0);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .fairy {
+    background: linear-gradient(-180deg, white, #f0b6bc);
+    background-size: 400% 400%;
+    background-position: 0% 50%;
+  }
+  .visibility-none {
+    visibility: hidden;
+  }
 </style>

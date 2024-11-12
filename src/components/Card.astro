@@ -1,61 +1,90 @@
 ---
-interface Props {
-	title: string;
-	body: string;
-	href: string;
+export interface Props {
+  name: string;
+  image: string;
+  type: string[];
+  id: number;
 }
 
-const { href, title, body } = Astro.props;
+const { name, image, type, id } = Astro.props;
+
+const typeTranslations = {
+  normal: "normal",
+  fighting: "lucha",
+  flying: "volador",
+  poison: "veneno",
+  ground: "tierra",
+  rock: "roca",
+  bug: "bicho",
+  ghost: "fantasma",
+  steel: "acero",
+  fire: "fuego",
+  water: "agua",
+  grass: "planta",
+  electric: "eléctrico",
+  psychic: "psíquico",
+  ice: "hielo",
+  dragon: "dragón",
+  dark: "siniestro",
+  fairy: "hada",
+};
+
+// Add type gradients
+const typeGradients = {
+  normal: "from-gray-400 to-gray-500",
+  fighting: "from-red-600 to-red-700",
+  flying: "from-blue-300 to-gray-300",
+  poison: "from-purple-500 to-purple-700",
+  ground: "from-yellow-600 to-yellow-700",
+  rock: "from-gray-500 to-yellow-600",
+  bug: "from-green-400 to-green-600",
+  ghost: "from-purple-600 to-indigo-700",
+  steel: "from-gray-400 to-gray-600",
+  fire: "from-orange-500 to-red-600",
+  water: "from-blue-400 to-blue-600",
+  grass: "from-green-400 to-green-700",
+  electric: "from-yellow-300 to-yellow-500",
+  psychic: "from-pink-400 to-pink-600",
+  ice: "from-blue-200 to-blue-400",
+  dragon: "from-purple-500 to-red-500",
+  dark: "from-gray-700 to-gray-900",
+  fairy: "from-pink-300 to-pink-500",
+};
+
+const translatedTypes = type.map((t) => typeTranslations[t.toLowerCase()] || t);
+const gradientClass =
+  typeGradients[type[0].toLowerCase()] || "from-blue-400 to-purple-500";
 ---
 
-<li class="link-card">
-	<a href={href}>
-		<h2>
-			{title}
-			<span>&rarr;</span>
-		</h2>
-		<p>
-			{body}
-		</p>
-	</a>
-</li>
-<style>
-	.link-card {
-		list-style: none;
-		display: flex;
-		padding: 1px;
-		background-color: #23262d;
-		background-image: none;
-		background-size: 400%;
-		border-radius: 7px;
-		background-position: 100%;
-		transition: background-position 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-		box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-	}
-	.link-card > a {
-		width: 100%;
-		text-decoration: none;
-		line-height: 1.4;
-		padding: calc(1.5rem - 1px);
-		border-radius: 8px;
-		color: white;
-		background-color: #23262d;
-		opacity: 0.8;
-	}
-	h2 {
-		margin: 0;
-		font-size: 1.25rem;
-		transition: color 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-	}
-	p {
-		margin-top: 0.5rem;
-		margin-bottom: 0;
-	}
-	.link-card:is(:hover, :focus-within) {
-		background-position: 0;
-		background-image: var(--accent-gradient);
-	}
-	.link-card:is(:hover, :focus-within) h2 {
-		color: rgb(var(--accent-light));
-	}
-</style>
+<a
+  href={`/pokemon/${id}`}
+  class="w-full h-full bg-white rounded-xl shadow-md flex flex-col overflow-hidden items-center justify-center"
+>
+  <div
+    id="header"
+    class={`relative w-full h-40 mb-24 bg-gradient-to-r ${gradientClass}`}
+  >
+    <div class="absolute left-1/2 -bottom-16 -translate-x-1/2">
+      <!-- Circle container -->
+      <div class="relative w-48 h-48">
+        <!-- Background circle -->
+        <div class="absolute inset-0 rounded-full bg-white shadow-lg z-10">
+        </div>
+        <!-- Image container -->
+        <div class="absolute inset-2 rounded-full overflow-hidden z-20">
+          <img
+            transition:persist
+            transition:name={`pokemon-image-${id}`}
+            src={image}
+            alt={name}
+            class="w-full h-full object-cover p-6"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pb-4 text-center">
+    <h2 class="text-xl font-bold mb-2">{name}</h2>
+    <p class="text-gray-600 flex-grow">Tipo: {translatedTypes.join(", ")}</p>
+  </div>
+</a>
