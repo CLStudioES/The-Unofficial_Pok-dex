@@ -58,7 +58,7 @@ const gradientClass =
 
 <a
   href={`/pokemon/${id}`}
-  class="w-full h-full bg-white rounded-xl shadow-md flex flex-col overflow-hidden items-center justify-center"
+  class="group w-full h-full bg-white rounded-xl shadow-md flex flex-col overflow-hidden items-center justify-center"
 >
   <div
     id="header"
@@ -68,10 +68,14 @@ const gradientClass =
       <!-- Circle container -->
       <div class="relative w-48 h-48">
         <!-- Background circle -->
-        <div class="absolute inset-0 rounded-full bg-white shadow-lg z-10">
+        <div
+          class="group-hover:scale-110 transition-all duration-150 absolute inset-0 rounded-full bg-white shadow-lg z-10"
+        >
         </div>
         <!-- Image container -->
-        <div class="absolute inset-2 rounded-full overflow-hidden z-20">
+        <div
+          class="group-hover:scale-125 transition-all duration-150 absolute inset-2 rounded-full overflow-hidden z-20"
+        >
           <img
             transition:persist
             transition:name={`pokemon-image-${id}`}

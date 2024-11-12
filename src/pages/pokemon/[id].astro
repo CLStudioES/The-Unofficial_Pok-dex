@@ -36,6 +36,7 @@ async function fetchPokemonData(id: string) {
 }
 
 const pokemonData = await fetchPokemonData(id);
+const pokedexNumber = String(id).padStart(3, "0");
 ---
 
 <Layout title="Bienvenido a la Pokédex no oficial">
@@ -96,9 +97,14 @@ const pokemonData = await fetchPokemonData(id);
       </div>
       <!-- Right Column - Pokemon Info -->
       <div class="flex flex-col items-center space-y-4 py-32">
-        <h1 class="text-4xl font-light uppercase tracking-wider">
-          {pokemonData.name}
-        </h1>
+        <div class="flex flex-row">
+          <h3 class="text-4xl font-extralight uppercase pr-2">
+            Nº {pokedexNumber} -
+          </h3>
+          <h2 class="text-4xl font-light uppercase tracking-wider">
+            {pokemonData.name}
+          </h2>
+        </div>
         <div class="space-y-2">
           <div>
             <div class="flex gap-2">

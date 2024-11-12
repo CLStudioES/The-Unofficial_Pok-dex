@@ -27,12 +27,50 @@ async function fetchPokemonData(start: number, limit: number) {
     return [];
   }
 }
-
 // Initial fetch of first 12 Pokémon
 const initialPokemons = await fetchPokemonData(1, ITEMS_PER_PAGE);
+
+async function fetchPokemonType() {
+  try {
+    const response = await fetch(`https://pokeapi.co/api/v2/type`);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching Pokemon data:", error);
+    return null;
+  }
+}
+const activeType = "all";
+const pokemonData = await fetchPokemonType();
 ---
 
-<div class="container mx-auto px-4 py-8">
+<section
+  id="typeGrid"
+  class="container mx-auto px-12 py-8 mt-8 shadow-lg rounded-3xl border border-gray-400 border-opacity-10 flex flex-row justify-between items-center"
+>
+  <div class="flex flex-col space-y-4 items-center">
+    <h2 class="text-2xl font-semibold tracking-wider">Tipos</h2>
+    <div
+      class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4"
+    >
+      <!-- "All" button -->
+      <button class="hover:scale-125 transition-all duration-100">
+        <img class="h-8 w-auto" src="/img/types_icons/todos.png" />
+      </button>
+
+      {/* Type buttons */}
+      {
+        pokemonData.results.map((type) => (
+          <button class="hover:scale-125 transition-all duration-100">
+            <img class="h-8 w-auto" src={`/img/types_icons/${type.name}.png`} />
+          </button>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<section class="container mx-auto px-4 py-8">
   <div
     id="pokemonGrid"
     class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
@@ -70,7 +108,7 @@ const initialPokemons = await fetchPokemonData(1, ITEMS_PER_PAGE);
       </div>
     )
   }
-</div>
+</section>
 
 <style>
   @keyframes spin {
@@ -90,12 +128,68 @@ const initialPokemons = await fetchPokemonData(1, ITEMS_PER_PAGE);
   #loadMore.loading img:hover {
     transform: none;
   }
+
+  .activeType {
+    scale: 1.3;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.75);
+    border-radius: 100%;
+  }
+
+  /* Optional: Add a background or glow effect for active buttons */
+  .activeType img {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 100%;
+  }
 </style>
 
 <script>
   const ITEMS_PER_PAGE = 12;
   const TOTAL_POKEMONS = 151;
+  const typeGrid = document.getElementById("typeGrid");
+  let activeType = "all";
   let currentPage = 1;
+
+  const typeTranslations = {
+    normal: "normal",
+    fighting: "lucha",
+    flying: "volador",
+    poison: "veneno",
+    ground: "tierra",
+    rock: "roca",
+    bug: "bicho",
+    ghost: "fantasma",
+    steel: "acero",
+    fire: "fuego",
+    water: "agua",
+    grass: "planta",
+    electric: "eléctrico",
+    psychic: "psíquico",
+    ice: "hielo",
+    dragon: "dragón",
+    dark: "siniestro",
+    fairy: "hada",
+  };
+
+  const typeGradients = {
+    normal: "from-gray-400 to-gray-500",
+    lucha: "from-red-600 to-red-700",
+    volador: "from-blue-300 to-gray-300",
+    veneno: "from-purple-500 to-purple-700",
+    tierra: "from-yellow-600 to-yellow-700",
+    roca: "from-gray-500 to-yellow-600",
+    bicho: "from-green-400 to-green-600",
+    fantasma: "from-purple-600 to-indigo-700",
+    acero: "from-gray-400 to-gray-600",
+    fuego: "from-orange-500 to-red-600",
+    agua: "from-blue-400 to-blue-600",
+    planta: "from-green-400 to-green-700",
+    eléctrico: "from-yellow-300 to-yellow-500",
+    psíquico: "from-pink-400 to-pink-600",
+    hielo: "from-blue-200 to-blue-400",
+    dragón: "from-purple-500 to-red-500",
+    siniestro: "from-gray-700 to-gray-900",
+    hada: "from-pink-300 to-pink-500",
+  };
 
   // DOM Elements
   const loadMoreButton = document.querySelector(
@@ -103,37 +197,135 @@ const initialPokemons = await fetchPokemonData(1, ITEMS_PER_PAGE);
   ) as HTMLButtonElement;
   const pokemonGrid = document.getElementById("pokemonGrid");
 
+  if (typeGrid) {
+    const typeButtons = typeGrid.querySelectorAll("button");
+
+    // Add click event listeners to all type buttons
+    typeButtons.forEach((button) => {
+      // Set initial active state for "all" button
+      if (button.querySelector("img")?.src.includes("todos.png")) {
+        button.classList.add("activeType");
+      }
+      button.addEventListener("click", async (e) => {
+        // Remove active class from all buttons
+        typeButtons.forEach((btn) => btn.classList.remove("activeType"));
+
+        // Add active class to clicked button
+        const clickedButton = e.currentTarget as HTMLButtonElement;
+        clickedButton.classList.add("activeType");
+
+        // Get the type from the image source
+        const imgSrc = clickedButton.querySelector("img")?.src || "";
+        activeType = imgSrc.includes("todos.png")
+          ? "all"
+          : imgSrc.match(/types_icons\/(.+)\.png/)?.[1] || "all";
+
+        // Filter Pokemon by type
+        if (!pokemonGrid) return;
+
+        // Clear current grid
+        pokemonGrid.innerHTML = "";
+
+        try {
+          if (activeType === "all") {
+            // Load initial pokemon set
+            const pokemons = await fetchPokemonData(1);
+            pokemons.forEach((pokemon) => {
+              const card = createPokemonCard(pokemon);
+              if (card) pokemonGrid.appendChild(card);
+            });
+
+            // Show load more button for "all" view
+            if (loadMoreButton) {
+              loadMoreButton.style.display = "block";
+              currentPage = 1;
+            }
+          } else {
+            // Hide load more button for filtered view
+            if (loadMoreButton) {
+              loadMoreButton.style.display = "none";
+            }
+
+            // Fetch pokemon by type
+            const response = await fetch(
+              `https://pokeapi.co/api/v2/type/${activeType}`
+            );
+            const data = await response.json();
+            const spanishTypeName = typeTranslations[activeType] || activeType;
+            // Filter to only get first 151 Pokemon
+            const typePokemons = data.pokemon
+              .map((p) => {
+                const id = parseInt(p.pokemon.url.split("/").slice(-2, -1)[0]);
+                return { id, url: p.pokemon.url };
+              })
+              .filter((p) => p.id <= TOTAL_POKEMONS);
+
+            // Check if any Pokemon were found
+            if (typePokemons.length === 0) {
+              const noResultsMessage = `
+                <div class="col-span-full text-center py-8">
+                  <p class="text-xl text-gray-600">No se encontraron Pokémon de tipo ${spanishTypeName} en la primera generación.</p>
+                  <p class="text-gray-500 mt-2">Prueba con otro tipo de Pokémon.</p>
+                </div>
+              `;
+              pokemonGrid.innerHTML = noResultsMessage;
+              return;
+            }
+
+            // Fetch and display each Pokemon of the selected type
+            for (const pokemon of typePokemons) {
+              const response = await fetch(
+                `https://pokeapi.co/api/v2/pokemon/${pokemon.id}`
+              );
+              const pokemonData = await response.json();
+
+              const formattedPokemon = {
+                id: pokemonData.id,
+                name:
+                  pokemonData.name.charAt(0).toUpperCase() +
+                  pokemonData.name.slice(1),
+                image:
+                  pokemonData.sprites.other["official-artwork"].front_default ||
+                  pokemonData.sprites.front_default,
+                type: pokemonData.types.map(
+                  (type) => typeTranslations[type.type.name] || type.type.name
+                ),
+              };
+
+              const card = createPokemonCard(formattedPokemon);
+              if (card) pokemonGrid.appendChild(card);
+            }
+          }
+        } catch (error) {
+          console.error("Error filtering Pokemon:", error);
+          pokemonGrid.innerHTML = `
+      <div class="col-span-full text-center py-8">
+        <p class="text-xl text-red-500">Error al cargar los Pokémon.</p>
+        <p class="text-gray-500 mt-2">Por favor, inténtalo de nuevo.</p>
+      </div>
+    `;
+        }
+      });
+    });
+  }
+
   // Add event listener to the button
   if (loadMoreButton) {
     loadMoreButton.addEventListener("click", handleLoadMore);
   }
 
-  async function fetchMorePokemon(start) {
-    const pokemons = [];
-    const limit = ITEMS_PER_PAGE;
-    const typeTranslations = {
-      normal: "normal",
-      fighting: "lucha",
-      flying: "volador",
-      poison: "veneno",
-      ground: "tierra",
-      rock: "roca",
-      bug: "bicho",
-      ghost: "fantasma",
-      steel: "acero",
-      fire: "fuego",
-      water: "agua",
-      grass: "planta",
-      electric: "eléctrico",
-      psychic: "psíquico",
-      ice: "hielo",
-      dragon: "dragón",
-      dark: "siniestro",
-      fairy: "hada",
-    };
+  async function fetchPokemonData(start: number, options = { isType: false }) {
+    try {
+      if (options.isType) {
+        const response = await fetch(`https://pokeapi.co/api/v2/type`);
+        const data = await response.json();
+        return data;
+      }
 
-    for (let i = start; i < start + limit && i <= TOTAL_POKEMONS; i++) {
-      try {
+      const pokemons = [];
+      const limit = ITEMS_PER_PAGE;
+
+      for (let i = start; i < start + limit && i <= TOTAL_POKEMONS; i++) {
         const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${i}`);
         const data = await response.json();
 
@@ -147,54 +339,41 @@ const initialPokemons = await fetchPokemonData(1, ITEMS_PER_PAGE);
             (type) => typeTranslations[type.type.name] || type.type.name
           ),
         });
-      } catch (error) {
-        console.error(`Error fetching pokemon ${i}:`, error);
       }
+      return pokemons;
+    } catch (error) {
+      console.error("Error fetching Pokemon data:", error);
+      return [];
     }
-
-    return pokemons;
   }
 
   function createPokemonCard(pokemon) {
-    const typeGradients = {
-      normal: "from-gray-400 to-gray-500",
-      lucha: "from-red-600 to-red-700",
-      volador: "from-blue-300 to-gray-300",
-      veneno: "from-purple-500 to-purple-700",
-      tierra: "from-yellow-600 to-yellow-700",
-      roca: "from-gray-500 to-yellow-600",
-      bicho: "from-green-400 to-green-600",
-      fantasma: "from-purple-600 to-indigo-700",
-      acero: "from-gray-400 to-gray-600",
-      fuego: "from-orange-500 to-red-600",
-      agua: "from-blue-400 to-blue-600",
-      planta: "from-green-400 to-green-700",
-      eléctrico: "from-yellow-300 to-yellow-500",
-      psíquico: "from-pink-400 to-pink-600",
-      hielo: "from-blue-200 to-blue-400",
-      dragón: "from-purple-500 to-red-500",
-      siniestro: "from-gray-700 to-gray-900",
-      hada: "from-pink-300 to-pink-500",
-    };
-
-    // Get gradient class based on pokemon type, with better error handling
     const firstType = pokemon.type[0]?.toLowerCase();
     const gradientClass =
       firstType && typeGradients[firstType]
         ? typeGradients[firstType]
         : "from-blue-400 to-purple-500";
 
-    // console.log("Pokemon type:", firstType, "Gradient:", gradientClass);
-
     const cardHTML = `
       <div class="pokemon-card w-full h-full p-2">
-        <a href="/pokemon/${pokemon.id}" class="w-full h-full bg-white rounded-xl shadow-md flex flex-col overflow-hidden items-center justify-center">
+        <a href="/pokemon/${pokemon.id}" class="group w-full h-full bg-white rounded-xl shadow-md flex flex-col overflow-hidden items-center justify-center">
           <div class="relative w-full h-40 mb-24 bg-gradient-to-r ${gradientClass}">
             <div class="absolute left-1/2 -bottom-16 -translate-x-1/2">
               <div class="relative w-48 h-48">
-                <div class="absolute inset-0 rounded-full bg-white shadow-lg z-10"></div>
-                <div class="absolute inset-2 rounded-full overflow-hidden z-20">
-                  <img src="${pokemon.image}" alt="${pokemon.name}" class="w-full h-full object-cover p-6" />
+                <div
+                  class="group-hover:scale-110 transition-all duration-150 absolute inset-0 rounded-full bg-white shadow-lg z-10"
+                >
+                </div>
+                <div
+                  class="group-hover:scale-125 transition-all duration-150 absolute inset-2 rounded-full overflow-hidden z-20"
+                >
+                  <img
+                    transition:persist
+                    transition:name=pokemon-image-${pokemon.id}
+                    src=${pokemon.image}
+                    alt=${pokemon.name}
+                    class="w-full h-full object-cover p-6"
+                  />
                 </div>
               </div>
             </div>
@@ -219,23 +398,25 @@ const initialPokemons = await fetchPokemonData(1, ITEMS_PER_PAGE);
     loadMoreButton.classList.add("loading");
     loadMoreButton.disabled = true;
 
-    try {
-      const start = currentPage * ITEMS_PER_PAGE + 1;
-      const pokemons = await fetchMorePokemon(start);
+    const nextPage = currentPage + 1;
+    const start = (nextPage - 1) * ITEMS_PER_PAGE + 1;
 
-      // Add new pokemon cards to the grid
-      pokemons.forEach((pokemon) => {
+    try {
+      const newPokemons = await fetchPokemonData(start);
+
+      newPokemons.forEach((pokemon) => {
         const card = createPokemonCard(pokemon);
         if (card) pokemonGrid.appendChild(card);
       });
 
-      currentPage++;
+      currentPage = nextPage;
 
-      if (currentPage * ITEMS_PER_PAGE >= TOTAL_POKEMONS) {
+      // Hide button if we've loaded all Pokémon
+      if (start + ITEMS_PER_PAGE > TOTAL_POKEMONS) {
         loadMoreButton.style.display = "none";
       }
     } catch (error) {
-      console.error("Error loading more pokemon:", error);
+      console.error("Error loading more Pokémon:", error);
     } finally {
       // Remove loading state
       loadMoreButton.classList.remove("loading");

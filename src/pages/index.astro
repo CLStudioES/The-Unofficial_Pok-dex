@@ -1,12 +1,15 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import CardsContainer from "../components/cardsContainer.astro";
+import FiltersNav from "../components/filtersNav.astro";
 ---
 
 <Layout title="Bienvenido a la Pokédex no oficial">
   <main
-    class="h-auto w-full flex flex-row justify-center items-center mx-auto gap-x-10"
+    class="h-auto w-full flex flex-col justify-center items-center mx-auto gap-x-10"
   >
+    <!-- <FiltersNav /> -->
+    <slot />
     <CardsContainer />
   </main>
 </Layout>
